@@ -163,7 +163,7 @@ const WeatherSearch = () => {
       </div>
 
       {/* ---------------- 7 DAY FORECAST ---------------- */}
-      <h3 className="font-semibold text-green-800 mb-4">7-Day Forecast</h3>
+      <h3 className="font-semibold text-green-800 mb-4">5-Day Forecast</h3>
 
       <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-10">
         {forecast.map((day, index) => (

@@ -91,7 +91,7 @@ function Dashboard() {
       <div className="bg-green-600 text-white rounded-xl p-6 shadow-lg mb-10">
         <div className="mb-6 text-center">
           <h2 className="text-3xl font-bold mb-2">
-            Welcome to Farmora! 🌿
+            Welcome to Krishi Mitra! 🌿
           </h2>
           <p className="text-green-100 text-lg">
             Your intelligent farming companion for better crop management
