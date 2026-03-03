@@ -54,6 +54,29 @@ The backend acts as the single source of truth, ensuring data consistency across
 
 ---
 
+
+## 🛠️ Local Development
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Create `frontend/.env` for weather support:
+```bash
+VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_OPENWEATHER_API_KEY=your_openweather_key
+```
+
 ## 🔮 Future Enhancements
 
 - Database integration (MongoDB)

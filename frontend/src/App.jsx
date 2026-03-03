@@ -6,7 +6,6 @@ import DashboardLayout from "./components/DashboardLayout";
 // Pages
 import Dashboard from "./components/Dashboard";
 import IrrigationCard from "./components/IrrigationCard";
-import Simulator from "./components/Simulator";
 import WeatherSearch from "./components/WeatherSearch";
 import CropHealthMonitor from "./components/Crop Health Monitor/CropHealthMonitor";
 

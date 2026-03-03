@@ -1,1 +1,46 @@
 @import "tailwindcss";
+
+:root {
+  --bg-page: #f3f6f8;
+  --bg-soft: #eef4ef;
+  --surface: #ffffff;
+  --surface-muted: #f7faf8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --brand-700: #0f766e;
+  --brand-600: #0d9488;
+  --brand-500: #14b8a6;
+  --border-soft: #dbe7df;
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 15% 10%, #dff3e9 0%, transparent 45%),
+    radial-gradient(circle at 85% 5%, #d9eef9 0%, transparent 40%),
+    var(--bg-page);
+  font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: #99f6e4;
+  color: #042f2e;
+}

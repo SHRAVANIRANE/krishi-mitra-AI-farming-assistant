@@ -1,32 +1,41 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
-import UploadSection from "./UploadSection";
-import FieldCard from "./FieldCard";
+import UploadSection from "./UploadSection.jsx";
+import { API_BASE_URL } from "../../config";
+import FieldCard from "./FieldCard.jsx";
 import FarmSummary from "./FarmSummary";
 
 const CropHealthMonitor = () => {
-  // ---------------- STATE ----------------
   const [selectedFile, setSelectedFile] = useState(null);
   const [diagnosis, setDiagnosis] = useState(null);
-  const [scannedFields, setScannedFields] = useState([]);
 
-  const [overallHealth, setOverallHealth] = useState(null);
-  const [healthyCount, setHealthyCount] = useState(0);
-  const [needAttentionCount, setNeedAttentionCount] = useState(0);
+  const [summary, setSummary] = useState({
+    total_fields: 0,
+    healthy_percentage: 0,
+    diseased_fields: 0,
+  });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ---------------- FETCH SUMMARY (ON PAGE LOAD) ----------------
+  const healthyCount = useMemo(
+    () => Math.max(summary.total_fields - summary.diseased_fields, 0),
+    [summary]
+  );
+
   const fetchCropSummary = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/crop-health/summary");
+      const res = await fetch(`${API_BASE_URL}/api/crop-health/summary`);
+      if (!res.ok) {
+        throw new Error("Failed to load crop summary");
+      }
       const data = await res.json();
-
-      setOverallHealth(data.healthy_percentage);
-      setHealthyCount(data.total_fields - data.diseased_fields);
-      setNeedAttentionCount(data.diseased_fields);
+      setSummary({
+        total_fields: Number(data.total_fields || 0),
+        healthy_percentage: Number(data.healthy_percentage || 0),
+        diseased_fields: Number(data.diseased_fields || 0),
+      });
     } catch (err) {
       console.error("Summary fetch error:", err);
     }
@@ -36,7 +45,6 @@ const CropHealthMonitor = () => {
     fetchCropSummary();
   }, []);
 
-  // ---------------- IMAGE UPLOAD & PREDICTION ----------------
   const handleUploadAndPredict = async () => {
     if (!selectedFile) {
       setError("Please upload an image file.");
@@ -50,61 +58,81 @@ const CropHealthMonitor = () => {
     formData.append("file", selectedFile);
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/predict", formData, {
+      const res = await axios.post(`${API_BASE_URL}/predict`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       setDiagnosis(res.data);
-
-      // Add scan to local list (UI only)
-      setScannedFields((prev) => [{ id: Date.now(), ...res.data }, ...prev]);
-
-      // 🔄 Re-fetch backend summary (REAL DATA)
-      fetchCropSummary();
+      await fetchCropSummary();
     } catch (err) {
       console.error(err);
-      setError("Failed to get prediction. Please try again.");
+      const backendMessage = err?.response?.data?.detail;
+      setError(backendMessage || "Failed to get prediction. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- UI ----------------
   return (
-    <div className="min-h-screen p-6 bg-green-50">
-      <h1 className="text-2xl font-bold text-green-700 mb-6">
-        Crop Health Monitor
-      </h1>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ecfdf3_0%,#f8fafc_50%,#eef2ff_100%)] p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6 rounded-2xl border border-emerald-100 bg-white/80 p-6 shadow-sm backdrop-blur">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+            Precision Diagnostics
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
+            Crop Health Monitor
+          </h1>
+          <p className="mt-2 text-sm text-slate-600 sm:text-base">
+            Upload a field image to generate disease prediction, confidence level,
+            and an actionable recommendation.
+          </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* UPLOAD SECTION */}
-        <div className="lg:col-span-1">
-          <UploadSection
-            selectedFile={selectedFile}
-            setSelectedFile={setSelectedFile}
-            onPredict={handleUploadAndPredict}
-            loading={loading}
-          />
-          {error && <p className="text-red-500 mt-2">{error}</p>}
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+              <p className="text-xs text-slate-500">Total Scans</p>
+              <p className="text-xl font-semibold text-slate-900">{summary.total_fields}</p>
+            </div>
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+              <p className="text-xs text-slate-500">Healthy</p>
+              <p className="text-xl font-semibold text-emerald-700">{healthyCount}</p>
+            </div>
+            <div className="rounded-xl border border-rose-100 bg-rose-50 p-3">
+              <p className="text-xs text-slate-500">Needs Attention</p>
+              <p className="text-xl font-semibold text-rose-700">{summary.diseased_fields}</p>
+            </div>
+            <div className="rounded-xl border border-sky-100 bg-sky-50 p-3">
+              <p className="text-xs text-slate-500">Health Score</p>
+              <p className="text-xl font-semibold text-sky-700">{summary.healthy_percentage}%</p>
+            </div>
+          </div>
         </div>
 
-        {/* RESULT + HISTORY */}
-        <div className="lg:col-span-2 space-y-6">
-          {diagnosis ? (
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+          <div className="xl:col-span-4">
+            <UploadSection
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+              onPredict={handleUploadAndPredict}
+              loading={loading}
+            />
+            {error ? (
+              <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {error}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="space-y-6 xl:col-span-8">
             <FieldCard
               file={selectedFile}
               diagnosis={diagnosis}
-              overallHealth={overallHealth}
+              overallHealth={summary.healthy_percentage}
               healthyCount={healthyCount}
-              needAttentionCount={needAttentionCount}
+              needAttentionCount={summary.diseased_fields}
             />
-          ) : (
-            <div className="bg-white p-6 rounded-xl shadow">
-              Upload an image to get crop diagnosis
-            </div>
-          )}
-
-          <FarmSummary />
+            <FarmSummary summary={summary} />
+          </div>
         </div>
       </div>
     </div>
@@ -112,3 +140,4 @@ const CropHealthMonitor = () => {
 };
 
 export default CropHealthMonitor;
+

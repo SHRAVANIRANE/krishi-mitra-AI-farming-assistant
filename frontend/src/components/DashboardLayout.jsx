@@ -1,13 +1,13 @@
-import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar.jsx";
 import { Outlet } from "react-router-dom";
 
 export default function DashboardLayout() {
   return (
-    <div className="flex">
+    <div className="mx-auto flex max-w-[1600px]">
       <Sidebar />
-      <div className="flex-1 p-6 bg-green-50 min-h-screen">
+      <main className="min-h-[calc(100vh-73px)] flex-1">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }
