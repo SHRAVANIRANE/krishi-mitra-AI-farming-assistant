@@ -1,4 +1,4 @@
-# Krishi Mitra - Smart Farming Assistant
+# 🌱 Krishi Mitra - Smart Farming Assistant
 
 Krishi Mitra is a full-stack, ML-powered web application that helps with crop disease detection, irrigation planning, weather-based decisions, and farm-level analytics.
 
