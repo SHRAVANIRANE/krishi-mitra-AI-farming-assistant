@@ -13,3 +13,6 @@ __pycache__/
 
 # Ignore the ML dataset folder
 /ml_model/data/Plant_leave_diseases_dataset_without_augmentation/
+
+frontend/.env
+.env
